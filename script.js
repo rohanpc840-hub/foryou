@@ -1,130 +1,155 @@
-// Shared background stars + soft glitter
-(function createAtmosphere(){
-  const stars = document.getElementById('stars');
-  const glitter = document.getElementById('glitter');
-  if(stars){
-    for(let i=0;i<65;i++){
-      const s=document.createElement('span');
-      s.className='star';
-      const size=(Math.random()*3+1)+'px';
-      s.style.width=size;s.style.height=size;
-      s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
-      s.style.animationDelay=(Math.random()*5)+'s';
-      stars.appendChild(s);
-    }
-  }
-  if(glitter){
-    for(let i=0;i<18;i++){
-      const g=document.createElement('span');
-      g.className='glitter-dot';
-      g.textContent=['✦','✧','⋆'][Math.floor(Math.random()*3)];
-      g.style.left=Math.random()*100+'%';g.style.top=(Math.random()*100)+'%';
-      g.style.animationDelay=(Math.random()*7)+'s';
-      glitter.appendChild(g);
-    }
-  }
-})();
+// Background Stars Initialization
+function createStars() {
+  const container = document.getElementById('stars');
+  if (!container) return;
 
-// Audio handling logic
-let isPlaying = false;
+  container.innerHTML = '';
+  const count = 100;
 
-function enableAudio(play) {
-  const modal = document.getElementById('audioModal');
-  const audio = document.getElementById('birthdayMusic');
-  const icon = document.getElementById('musicIcon');
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 100}%`;
+    
+    const size = Math.random() * 2 + 1;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+    star.style.animationDelay = `${Math.random() * 2}s`;
 
-  if (modal) modal.classList.add('hidden');
-
-  if (play && audio) {
-    audio.play().then(() => {
-      isPlaying = true;
-      if (icon) icon.textContent = '🔊';
-    }).catch(err => {
-      console.log('Autoplay error:', err);
-    });
-  } else {
-    if (icon) icon.textContent = '🔇';
+    container.appendChild(star);
   }
 }
 
-function toggleAudio() {
-  const audio = document.getElementById('birthdayMusic');
-  const icon = document.getElementById('musicIcon');
+// Countdown & Target Date Config
+const TARGET_DATE = new Date('2026-05-07T00:00:00').getTime();
+const CHORUS_START_TIME = 42; // Chorus start time in seconds
+
+let isAudioPlaying = false;
+
+function getAudioElement() {
+  return document.getElementById('birthdayMusic');
+}
+
+// Modal Play Button Click Handler
+function enableAudio(shouldPlay) {
+  const modal = document.getElementById('audioModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+
+  if (shouldPlay) {
+    playMusic();
+  }
+}
+
+// Play Music from Beginning
+function playMusic() {
+  const audio = getAudioElement();
   if (!audio) return;
 
-  if (isPlaying) {
+  audio.play().then(() => {
+    isAudioPlaying = true;
+    updateMusicIcon(true);
+  }).catch((err) => {
+    console.warn('Autoplay prevented by browser policy:', err);
+    isAudioPlaying = false;
+    updateMusicIcon(false);
+  });
+}
+
+// Jump to Chorus and Play (Triggered on Countdown Finish)
+function playChorus() {
+  const audio = getAudioElement();
+  if (!audio) return;
+
+  // Jump directly to chorus start timestamp
+  audio.currentTime = CHORUS_START_TIME;
+  
+  audio.play().then(() => {
+    isAudioPlaying = true;
+    updateMusicIcon(true);
+  }).catch((err) => {
+    console.warn('Playback blocked. User interaction required:', err);
+    // Show modal if playback was blocked by browser
+    const modal = document.getElementById('audioModal');
+    if (modal) modal.style.display = 'flex';
+  });
+}
+
+// Toggle Audio Play / Pause
+function toggleAudio() {
+  const audio = getAudioElement();
+  if (!audio) return;
+
+  if (isAudioPlaying && !audio.paused) {
     audio.pause();
-    isPlaying = false;
-    if (icon) icon.textContent = '🔇';
+    isAudioPlaying = false;
+    updateMusicIcon(false);
   } else {
-    audio.play();
-    isPlaying = true;
-    if (icon) icon.textContent = '🔊';
+    audio.play().then(() => {
+      isAudioPlaying = true;
+      updateMusicIcon(true);
+    }).catch(console.error);
   }
 }
 
-// Countdown: September 6, 2026 at midnight, India Standard Time.
-const params = new URLSearchParams(window.location.search);
-const testBirthday = params.get('test') === 'birthday';
+function updateMusicIcon(playing) {
+  const icon = document.getElementById('musicIcon');
+  if (icon) {
+    icon.textContent = playing ? '🔊' : '🎵';
+  }
+}
 
-const birthday = testBirthday
-  ? Date.now() - 1000
-  : new Date('2026-09-06T00:00:00+05:30').getTime();
+// Countdown Timer Engine
+function updateCountdown() {
+  const daysEl = document.getElementById('cd-days');
+  const hoursEl = document.getElementById('cd-hours');
+  const minsEl = document.getElementById('cd-mins');
+  const secsEl = document.getElementById('cd-secs');
 
-function updateCountdown(){
-  const diff=birthday-Date.now();
-  if(diff<=0){
-    ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.textContent='0';
-    });
-    const screen=document.getElementById('countdownScreen');
-    const reveal=document.getElementById('birthdayReveal');
-    if(screen && reveal && !reveal.dataset.started){
-      reveal.dataset.started='true';
-      screen.classList.add('hidden');
-      reveal.classList.remove('hidden');
-      launchConfetti();
+  if (!daysEl) return;
+
+  const now = new Date().getTime();
+  const diff = TARGET_DATE - now;
+
+  if (diff <= 0) {
+    daysEl.textContent = '00';
+    hoursEl.textContent = '00';
+    minsEl.textContent = '00';
+    secsEl.textContent = '00';
+
+    // Reveal main birthday section & trigger chorus
+    const countdownScreen = document.getElementById('countdownScreen');
+    const birthdayReveal = document.getElementById('birthdayReveal');
+
+    if (countdownScreen && birthdayReveal) {
+      countdownScreen.classList.add('hidden');
+      birthdayReveal.classList.remove('hidden');
     }
+
+    playChorus();
     return;
   }
-  const d=Math.floor(diff/86400000);
-  const h=Math.floor((diff%86400000)/3600000);
-  const m=Math.floor((diff%3600000)/60000);
-  const s=Math.floor((diff%60000)/1000);
-  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};
-  set('cd-days',d);set('cd-hours',h);set('cd-mins',m);set('cd-secs',s);
-  setTimeout(updateCountdown,1000);
-}
-updateCountdown();
 
-function launchConfetti(){
-  const canvas=document.getElementById('confetti');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  canvas.width=innerWidth;canvas.height=innerHeight;
-  const pieces=[];
-  const symbols=['✦','✧','⋆','♡','✦'];
-  for(let i=0;i<180;i++){
-    pieces.push({
-      x:Math.random()*canvas.width,y:-Math.random()*canvas.height*.4,
-      vx:(Math.random()-.5)*3,vy:Math.random()*4+2,
-      size:Math.random()*15+7,rot:Math.random()*Math.PI*2,
-      vr:(Math.random()-.5)*.15,life:Math.random()*120+120,
-      text:symbols[Math.floor(Math.random()*symbols.length)]
-    });
-  }
-  let frame=0;
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    pieces.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;p.vy+=.018;p.rot+=p.vr;p.life--;
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
-      ctx.globalAlpha=Math.max(0,Math.min(1,p.life/50));
-      ctx.font=`${p.size}px serif`;ctx.fillStyle='rgba(240,210,255,.9)';
-      ctx.fillText(p.text,0,0);ctx.restore();
-    });
-    frame++;
-    if(frame<260)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);
-  }
-  draw();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const mins = Math.floor((diff / 1000 / 60) % 60);
+  const secs = Math.floor((diff / 1000) % 60);
+
+  daysEl.textContent = String(days).padStart(2, '0');
+  hoursEl.textContent = String(hours).padStart(2, '0');
+  minsEl.textContent = String(mins).padStart(2, '0');
+  secsEl.textContent = String(secs).padStart(2, '0');
 }
+
+// Initialize Page Features
+document.addEventListener('DOMContentLoaded', () => {
+  createStars();
+
+  if (document.getElementById('cd-days')) {
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+});
