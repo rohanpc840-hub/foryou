@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Favourite Moment 💗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Italiana&family=Poiret+One&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="nebula n1"></div><div class="nebula n2"></div><div class="nebula n3"></div>
+  <div class="moon"></div>
+  <div class="stars-container" id="stars"></div>
+  <div id="glitter"></div>
+
+  <main class="moment-page">
+    <div class="heart-row">💗 ✦ 💕 ✦ 💗</div>
+    <h1>Our Favourite Moment</h1>
+    <p class="moment-intro">I want to know which moment of us is your favourite. 💕</p>
+
+    <section class="moment-card">
+      <form id="moment-form">
+        <label for="favourite-moment">Tell me your favourite moment of us ✨</label>
+        <textarea id="favourite-moment" name="favourite_moment" rows="6" maxlength="2000" required placeholder="Write it here, Nik... 💗"></textarea>
+        <button class="glow-button" type="submit" id="moment-submit">Send it to Ro 💌</button>
+        <p class="form-note">Your answer will be sent to Ro's email. 💗</p>
+        <div class="form-status" id="form-status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="moment-success hidden" id="moment-success">
+      <div class="heart-row">💗 ✨ 💕 ✨ 💗</div>
+      <h2>I hope we can have more of these moments together! 💗</h2>
+      <p>And now, a little collection of memories. ✨</p>
+
+      <div class="polaroid-table" aria-label="Three photos of our memories">
+        <div class="table-glow"></div>
+        <figure class="polaroid p1">
+          <div class="photo-tape"></div>
+          <img src="image0.jpeg" alt="Movie night memory">
+          <figcaption>movie nights ✦</figcaption>
+        </figure>
+        <figure class="polaroid p2">
+          <div class="photo-tape"></div>
+          <img src="image1.jpeg" alt="Walking together memory">
+          <figcaption>side by side 💕</figcaption>
+        </figure>
+        <figure class="polaroid p3">
+          <div class="photo-tape"></div>
+          <img src="image2.jpeg" alt="Us smiling together">
+          <figcaption>us ✨</figcaption>
+        </figure>
+        <div class="table-sparkle s1">✦</div>
+        <div class="table-sparkle s2">✧</div>
+        <div class="table-sparkle s3">⋆</div>
+      </div>
+    </section>
+
+    <button class="glow-button secondary-button" onclick="window.location.href='questions.html'">Back to our questions ✦</button>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    const FORM_ID = 'maeyobzw';
+    const form = document.getElementById('moment-form');
+    const submitButton = document.getElementById('moment-submit');
+    const status = document.getElementById('form-status');
+    const success = document.getElementById('moment-success');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending... ✨';
+      status.textContent = '';
+      try {
+        const response = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+          method: 'POST',
+          headers: {'Accept':'application/json','Content-Type':'application/json'},
+          body: JSON.stringify({
+            favourite_moment: document.getElementById('favourite-moment').value,
+            page: 'Nik Birthday Website — Favourite Moment'
+          })
+        });
+        if (!response.ok) throw new Error('Submission failed');
+        form.classList.add('hidden');
+        success.classList.remove('hidden');
+        burstGlitter();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (error) {
+        status.textContent = 'Something went wrong sending it. Please try again.';
+        status.className = 'form-status error';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Send it to Ro 💌';
+      }
+    });
+
+    function burstGlitter() {
+      for (let i = 0; i < 35; i++) {
+        const s = document.createElement('span');
+        s.className = 'burst-glitter';
+        s.textContent = ['✦','✧','⋆','♡'][Math.floor(Math.random()*4)];
+        s.style.left = (50 + (Math.random()*50-25)) + '%';
+        s.style.top = (45 + (Math.random()*20-10)) + '%';
+        s.style.setProperty('--x', (Math.random()*240-120) + 'px');
+        s.style.setProperty('--y', (Math.random()*220-110) + 'px');
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 1300);
+      }
+    }
+  </script>
+</body>
+</html>

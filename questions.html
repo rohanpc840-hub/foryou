@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Little Us Quiz 💗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Italiana&family=Poiret+One&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="nebula n1"></div><div class="nebula n2"></div><div class="nebula n3"></div>
+  <div class="moon"></div>
+  <div class="stars-container" id="stars"></div>
+  <div id="glitter"></div>
+
+  <main class="questions-page">
+    <div class="page-heading">
+      <div class="heart-row">♡ ✦ ♡</div>
+      <h1>A Little Bit of Us</h1>
+      <p>Five little questions about the memories we share. 💗</p>
+    </div>
+
+    <section class="question-card">
+      <span class="question-number">01</span>
+      <h2>When was our first anniversary? 💕</h2>
+      <button class="answer-button" onclick="window.location.href='anniversary.html'">Answer date ✨</button>
+    </section>
+
+    <section class="question-card">
+      <span class="question-number">02</span>
+      <h2>What is your favourite moment of us together? 💕</h2>
+      <button class="answer-button" onclick="window.location.href='moment.html'">I have an answer for you ✨</button>
+      <p class="send-note">Your answer will be sent to Ro 💌</p>
+    </section>
+
+    <section class="question-card">
+      <span class="question-number">03</span>
+      <h2>Will you be with me for many more years? 💗</h2>
+      <div class="choice-row">
+        <button class="yes-button" onclick="chooseYes()">Yes 💕</button>
+        <button class="no-button" id="noButton" onclick="chooseNo()">No</button>
+      </div>
+      <div class="answer" id="yesAnswer"></div>
+      <div class="mini-status" id="yearsStatus" aria-live="polite"></div>
+    </section>
+
+    <section class="question-card">
+      <span class="question-number">04</span>
+      <h2>What's the gift you want for your 18th, lover? 🎁</h2>
+      <button class="answer-button" onclick="window.location.href='gift.html'">Make my wish ✨</button>
+      <p class="send-note">Your wish will be sent to Ro 💌</p>
+    </section>
+
+    <section class="question-card">
+      <span class="question-number">05</span>
+      <h2>What do you want to ask me about us, my love? 💕</h2>
+      <textarea class="question-input" id="ask-answer" maxlength="1500" placeholder="Ask me anything about us... 🤍"></textarea>
+      <button class="answer-button" onclick="sendTextAnswer(event,'question_for_ro','ask-answer','askStatus')">Send my question 💌</button>
+      <div class="mini-status" id="askStatus" aria-live="polite"></div>
+    </section>
+
+    <footer>made with stars, glitter & a little bit of us ✦</footer>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    const FORM_ID = 'maeyobzw';
+
+    async function sendToEmail(fields, statusElement, button = null, originalText = '') {
+      const status = document.getElementById(statusElement);
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Sending... ✨';
+      }
+
+      status.textContent = '';
+
+      try {
+        const response = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...fields, page: 'Nik Birthday Website — Questions' })
+        });
+
+        if (!response.ok) throw new Error('Submission failed');
+
+        status.textContent = 'Sent to Ro 💌';
+        status.className = 'mini-status success';
+        if (button) button.textContent = 'Sent ✨';
+        return true;
+      } catch (error) {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.className = 'mini-status error';
+        if (button) {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+        return false;
+      }
+    }
+
+    function chooseNo() {
+      const button = document.getElementById('noButton');
+      button.textContent = 'Yes 💕';
+      button.className = 'yes-button';
+      button.onclick = chooseYes;
+      button.style.transform = 'scale(1.05)';
+      setTimeout(() => button.style.transform = '', 250);
+    }
+
+    async function chooseYes() {
+      const answer = document.getElementById('yesAnswer');
+      const status = document.getElementById('yearsStatus');
+      const yesButtons = document.querySelectorAll('.yes-button');
+
+      status.textContent = 'Sending... ✨';
+      status.className = 'mini-status';
+      yesButtons.forEach(b => b.disabled = true);
+
+      try {
+        const response = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+          method: 'POST',
+          headers: {'Accept': 'application/json','Content-Type': 'application/json'},
+          body: JSON.stringify({ many_more_years: 'Yes 💗', page: 'Nik Birthday Website — Questions' })
+        });
+        if (!response.ok) throw new Error('Submission failed');
+        answer.innerHTML = 'Here’s to us for many more years! 🥂💗';
+        answer.classList.add('show');
+        status.textContent = 'Sent to Ro 💌';
+        status.className = 'mini-status success';
+        burstGlitter();
+      } catch (error) {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.className = 'mini-status error';
+        yesButtons.forEach(b => b.disabled = false);
+      }
+    }
+
+    async function sendTextAnswer(event, fieldName, inputId, statusId) {
+      const input = document.getElementById(inputId);
+      const button = event.currentTarget;
+      const value = input.value.trim();
+      const status = document.getElementById(statusId);
+      if (!value) {
+        status.textContent = 'Write something first 💗';
+        status.className = 'mini-status error';
+        return;
+      }
+      const sent = await sendToEmail({ [fieldName]: value }, statusId, button, 'Send my answer 💌');
+      if (sent) input.disabled = true;
+    }
+
+    function burstGlitter() {
+      for (let i = 0; i < 35; i++) {
+        const s = document.createElement('span');
+        s.className = 'burst-glitter';
+        s.textContent = ['✦','✧','⋆','♡'][Math.floor(Math.random()*4)];
+        s.style.left = (50 + (Math.random()*50-25)) + '%';
+        s.style.top = (45 + (Math.random()*20-10)) + '%';
+        s.style.setProperty('--x', (Math.random()*240-120) + 'px');
+        s.style.setProperty('--y', (Math.random()*220-110) + 'px');
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 1300);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For Nik ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Italiana&family=Poiret+One&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="nebula n1"></div><div class="nebula n2"></div><div class="nebula n3"></div>
+  <div class="moon"></div>
+  <div class="stars-container" id="stars"></div>
+  <div id="glitter"></div>
+  <canvas id="confetti"></canvas>
+
+  <!-- Audio Permission Modal Prompt -->
+  <div class="audio-modal-overlay" id="audioModal">
+    <div class="audio-modal-card">
+      <div class="modal-icon">🎵</div>
+      <h2>Enable Music?</h2>
+      <p>Would you like to play "My Love Mine All Mine" while exploring your surprise?</p>
+      <div class="modal-actions">
+        <button class="glow-button modal-btn-primary" onclick="enableAudio(true)">Yes, Play Music ✨</button>
+        <button class="glow-button modal-btn-secondary" onclick="enableAudio(false)">Continue Quietly</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="main-wrapper" id="countdownScreen">
+    <header class="header">
+      <div class="sparkle-row">
+        <span>✦</span><span class="small-star">✧</span><span>✦</span>
+      </div>
+      <h1>Your Surprise Is Coming Soon Nik</h1>
+      <p class="subtitle">the stars are aligning for you</p>
+    </header>
+
+    <section class="countdown-grid" aria-label="Birthday countdown">
+      <div class="countdown-box"><div class="number" id="cd-days">--</div><div class="label">Days</div></div>
+      <div class="countdown-box"><div class="number" id="cd-hours">--</div><div class="label">Hours</div></div>
+      <div class="countdown-box"><div class="number" id="cd-mins">--</div><div class="label">Minutes</div></div>
+      <div class="countdown-box"><div class="number" id="cd-secs">--</div><div class="label">Seconds</div></div>
+    </section>
+
+    <!-- Floating music control toggle -->
+    <button id="musicToggleBtn" class="music-floating-btn" onclick="toggleAudio()" type="button" aria-label="Toggle Audio">
+      <span id="musicIcon">🎵</span>
+    </button>
+
+    <section class="personal-message">
+      <p>I know I couldn't make it to your birthday but you're always in my mind 24/7 and for that I made this surprise for you 💗</p>
+      <div class="signature">— with love, ro 🤍</div>
+    </section>
+  </main>
+
+  <section class="birthday-reveal hidden" id="birthdayReveal">
+    <div class="reveal-content">
+      <div class="heart-row">💗 ✨ 💕 ✨ 💗</div>
+      <h2>Happy Birthday Nik!</h2>
+      <p class="reveal-subtitle">This is all for you my cutie! 💗</p>
+      <button class="glow-button" onclick="window.location.href='questions.html'">
+        Open your little surprise ✨
+      </button>
+    </div>
+  </section>
+
+  <audio id="birthdayMusic" loop preload="auto" src="music/my-love-all-mine.mp3"></audio>
+  <script src="script.js"></script>
+</body>
+</html>

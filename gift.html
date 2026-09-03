@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your 18th Birthday Wish 🎁</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Italiana&family=Poiret+One&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="nebula n1"></div><div class="nebula n2"></div><div class="nebula n3"></div>
+  <div class="moon"></div>
+  <div class="stars-container" id="stars"></div>
+  <div id="glitter"></div>
+
+  <main class="questions-page">
+    <div class="page-heading">
+      <div class="heart-row">🎁 ✦ 💗</div>
+      <h1>Your 18th Birthday Wish</h1>
+      <p>Tell me what you wish for, my love... ✨</p>
+    </div>
+
+    <section class="question-card gift-card">
+      <div id="giftFormContainer">
+        <textarea class="question-input" id="gift-answer" maxlength="1500" placeholder="Tell me what you wish for, Nik... 💗"></textarea>
+        <button class="answer-button" id="giftSubmitBtn" onclick="startWishCountdown()">Send my wish ✨</button>
+        <div class="mini-status" id="giftStatus" aria-live="polite"></div>
+      </div>
+
+      <!-- Dedicated 11:11 Lucky Clock Screen -->
+      <div class="wish-reveal hidden" id="wishReveal">
+        <div class="heart-row">✦ ✨ 11:11 ✨ ✦</div>
+        <p class="wish-lucky-subtitle">Making your wish come true...</p>
+
+        <div class="countdown-grid gift-countdown-grid" aria-label="Lucky wish timer">
+          <div class="countdown-box"><div class="number" id="gift-mins">00</div><div class="label">Minutes</div></div>
+          <div class="countdown-box"><div class="number" id="gift-secs">00</div><div class="label">Seconds</div></div>
+        </div>
+
+        <div class="wish-prompt hidden" id="wishPrompt">
+          <p>Did you make a wish? 💗</p>
+          <div class="signature">Sent to Ro 💌</div>
+        </div>
+      </div>
+    </section>
+
+    <button class="glow-button secondary-button" onclick="window.location.href='questions.html'">Back to questions ✦</button>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    const FORM_ID = 'maeyobzw';
+
+    async function startWishCountdown() {
+      const input = document.getElementById('gift-answer');
+      const button = document.getElementById('giftSubmitBtn');
+      const status = document.getElementById('giftStatus');
+      const wishVal = input.value.trim();
+
+      if (!wishVal) {
+        status.textContent = 'Write your wish first 💗';
+        status.className = 'mini-status error';
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Sending... ✨';
+      status.textContent = '';
+
+      try {
+        const response = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eighteenth_birthday_gift_wish: wishVal,
+            page: 'Nik Birthday Website — Gift Wish Page'
+          })
+        });
+
+        if (!response.ok) throw new Error('Submission failed');
+
+        document.getElementById('giftFormContainer').classList.add('hidden');
+        document.getElementById('wishReveal').classList.remove('hidden');
+
+        const duration = 4000;
+        const start = performance.now();
+        const minsEl = document.getElementById('gift-mins');
+        const secsEl = document.getElementById('gift-secs');
+        const prompt = document.getElementById('wishPrompt');
+
+        function animateWishClock(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const totalSeconds = Math.floor(progress * (11 * 60 + 11));
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+
+          minsEl.textContent = String(minutes).padStart(2, '0');
+          secsEl.textContent = String(seconds).padStart(2, '0');
+
+          if (progress < 1) {
+            requestAnimationFrame(animateWishClock);
+          } else {
+            minsEl.textContent = '11';
+            secsEl.textContent = '11';
+            prompt.classList.remove('hidden');
+            burstGlitter();
+          }
+        }
+        requestAnimationFrame(animateWishClock);
+
+      } catch (error) {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.className = 'mini-status error';
+        button.disabled = false;
+        button.textContent = 'Send my wish ✨';
+      }
+    }
+
+    function burstGlitter() {
+      for (let i = 0; i < 35; i++) {
+        const s = document.createElement('span');
+        s.className = 'burst-glitter';
+        s.textContent = ['✦','✧','⋆','♡'][Math.floor(Math.random()*4)];
+        s.style.left = (50 + (Math.random()*50-25)) + '%';
+        s.style.top = (45 + (Math.random()*20-10)) + '%';
+        s.style.setProperty('--x', (Math.random()*240-120) + 'px');
+        s.style.setProperty('--y', (Math.random()*220-110) + 'px');
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 1300);
+      }
+    }
+  </script>
+</body>
+</html>
